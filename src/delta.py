@@ -20,11 +20,13 @@ def create_obfus(data: dict[str: bytes]) -> None:
 
     main_text = f"""from kharmor.decrypter import Armor\nexec(Armor().decrypter__(b'{data['code']}'))"""
 
-    decrypt_text = f"""from Crypto.Cipher import AES\nimport base64\nclass Armor():\n    def __init__(self):\n        self.key = {data['key']}\n    def decrypter__(self, encrypted_text: bytes):\n      cipher = AES.new(self.key, AES.MODE_ECB)\n      decoded_text = base64.b64decode(encrypted_text)\n      decrypted_text = cipher.decrypt(decoded_text)\n      dle = decrypted_text.decode('utf-8').split('\\n')[-1]\n      text = decrypted_text.decode('utf-8').replace(dle, "")\n      return text"""
+    decrypt_text = f"""from Crypto.Cipher import AES\nimport base64\nclass Armor():\n    def __init__(self):\n        self.key = {data['key']}\n    def decrypter__(self, encrypted_text: bytes):\n      cipher = AES.new(self.key, AES.MODE_ECB)\n      decoded_text = base64.b64decode(encrypted_text)\n      decrypted_text = cipher.decrypt(decoded_text)\n      return decrypted_text.decode('utf-8').replace(decrypted_text.decode('utf-8').split('\\n')[-1], "")"""
+    
+    test_decrypt_text = f"""from Crypto.Cipher import AES\nimport base64\nclass Armor():\n    def decrypter__(self, ec: bytes): return AES.new({data['key']}, AES.MODE_ECB).decrypt(base64.b64decode(ec)).decode('utf-8').replace(AES.new({data['key']}, AES.MODE_ECB).decrypt(base64.b64decode(ec)).decode('utf-8').split('\\n')[-1], "")"""
     
     Path(str(current_path) + "\main.py").write_text(main_text)
     os.mkdir(str(current_path) + "\kharmor")
-    Path(str(current_path) + "\kharmor\decrypter.py").write_text(decrypt_text)
+    Path(str(current_path) + "\kharmor\decrypter.py").write_text(test_decrypt_text)
 
 
 def main_entry() -> None:
@@ -50,7 +52,7 @@ def main_entry() -> None:
     
 def main() -> None:
     main_entry()
-    code_data = CodeEcrypted(CONFIG["target_file"]).crypto_code()
+    code_data = CodeEncrypted(CONFIG["target_file"]).crypto_code()
     create_obfus(code_data)
 
 
